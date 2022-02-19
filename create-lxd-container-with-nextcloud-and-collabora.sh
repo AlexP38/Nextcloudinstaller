@@ -28,7 +28,7 @@ lxc exec $container -- sh -c 'sed -i -r "s/upload_max_filesize = .*/upload_max_f
 lxc exec $container -- sh -c 'sed -i -r "s/post_max_size = .*/post_max_size = 500M/" /etc/php/*/apache2/php.ini'
 lxc exec $container -- sh -c 'sed -i -r "s/max_execution_time = .*/max_execution_time = 300/" /etc/php/*/apache2/php.ini'
 lxc exec $container -- sh -c 'curl -o nextcloud-23.zip https://download.nextcloud.com/server/releases/latest-23.zip'
-lxc exec $container -- sh -c 'unzip nextcloud-23.zip'
+lxc exec $container -- sh -c 'unzip -qq nextcloud-23.zip'
 lxc exec $container -- sh -c 'mv nextcloud /var/www/'
 lxc exec $container -- sh -c 'chown -R www-data:www-data /var/www/nextcloud && chmod -R 755 /var/www/nextcloud'
 lxc exec $container -- sh -c 'rm -r nextcloud-23.zip'
