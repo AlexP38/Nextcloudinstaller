@@ -4,7 +4,7 @@ read -p 'Mysql-Password: ' password
 read -p 'Domain: ' domain
 read -p 'Split the Domain into the part before .de / .com / .net etc. without subdomain (e.g. google for cloud.google.com / microsoft for xyz.microsoft.net: ' fqn
 read -p 'Now what is the ending? e.g. de / com / net (without a .):' tdl
-read -p 'Where is your reverse-proxy? (You need an apache2 and certbot installed) Tell me the container name or if on the host say "host":' revproxy
+read -p 'Where is your reverse-proxy? (You need an apache2 and certbot installed) Tell me the container name or if on the host leave blank and just press enter:' revproxy
 lxc init images:debian/11 $container
 lxc start $container
 ContainerIP=$(lxc list "$container" -c 4 | awk '!/IPV4/{ if ( $2 != "" ) print $2}')
@@ -40,7 +40,7 @@ lxc exec $container -- sh -c 'sed -i -r "s/<termination desc=\"Connection via pr
 lxc exec $container -- sh -c 'sed -i -r "s/SSL support to enable.\" default=\"true\">true<\/enable>/SSL support to enable.\" default=\"true\">false<\/enable>/" /etc/coolwsd/coolwsd.xml'
 lxc exec Test -- sh -c 'sed -i -r "s/<wopi desc=\"Allow\\/deny wopi storage.\" allow=\"true\">/<wopi desc=\"Allow\\/deny wopi storage.\" allow=\"true\">\n<host desc=\"Regex pattern of hostname to allow or deny.\" allow=\"true\">(?:.*\\\.)?'"$fqn"'\\\.'"$tdl"'<\/host>/" /etc/coolwsd/coolwsd.xml'
 lxc exec $container -- sh -c 'systemctl restart coolwsd'
-if [ $revproxy != 'host' ]
+if [ $revproxy != '' ]
 then
 lxc file push vhost-reverse-proxy.conf $revproxy/root/vhost-reverse-proxy.conf
 lxc exec $revproxy -- sh -c 'cp /root/vhost-reverse-proxy.conf /etc/apache2/sites-available/000-nextcloud-container.conf'
@@ -57,4 +57,4 @@ certbot certonly -d $domain --apache
 a2ensite 000-nextcloud-container.conf
 systemctl reload apache2
 fi
-echo "Done. Got to https://$domain and set up your nextcloud with a admin user and the database credentials user: nextcloud, password: $password and database-name: nextcloud."
+echo "Done. Got to https://$domain and set up your nextcloud with a admin user and the database credentials user: nextcloud, password: $password and database-name: nextcloud.\nInstall Nextcloud Office App and add https://$domain to Settings - Nextcloud Office when selecting to use a own server. "
