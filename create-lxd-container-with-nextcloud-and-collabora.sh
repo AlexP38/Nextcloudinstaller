@@ -7,6 +7,13 @@ read -p 'Now what is the ending? e.g. de / com / net (without a .):' tdl
 read -p 'Where is your reverse-proxy? (You need an apache2 and certbot installed) Tell me the container name or if on the host say "host":' revproxy
 lxc init images:debian/11 $container
 lxc start $container
+ContainerIP=$(lxc list "$container" -c 4 | awk '!/IPV4/{ if ( $2 != "" ) print $2}')
+while [ $ContainerIP = '|' ]
+do
+echo "Waiting for container IP"
+sleep 7
+ContainerIP=$(lxc list "$container" -c 4 | awk '!/IPV4/{ if ( $2 != "" ) print $2}')
+done
 lxc exec $container -- sh -c 'apt install -y wget'
 lxc exec $container -- sh -c 'cd /usr/share/keyrings && wget https://collaboraoffice.com/downloads/gpg/collaboraonline-release-keyring.gpg'
 lxc file push vhost.conf $container/root/vhost.conf
@@ -43,13 +50,6 @@ lxc exec $revproxy -- sh -c 'certbot certonly -d $domain --apache'
 lxc exec $revproxy -- sh -c 'a2ensite 000-nextcloud-container.conf'
 lxc exec $revproxy -- sh -c 'systemctl reload apache2'
 else
-ContainerIP=$(lxc list "$container" -c 4 | awk '!/IPV4/{ if ( $2 != "" ) print $2}')
-while [ $ContainerIP = '|' ]
-do
-echo "Waiting for container IP"
-sleep 7
-ContainerIP=$(lxc list "$container" -c 4 | awk '!/IPV4/{ if ( $2 != "" ) print $2}')
-done
 cp vhost-reverse-proxy.conf /etc/apache2/sites-available/000-nextcloud-container.conf
 sed -i -r 's/replacewithdomain/'"$domain"'/g' /etc/apache2/sites-available/000-nextcloud-container.conf
 sed -i -r 's/replacewithcontainer/'"$ContainerIP"'/g' /etc/apache2/sites-available/000-nextcloud-container.conf
