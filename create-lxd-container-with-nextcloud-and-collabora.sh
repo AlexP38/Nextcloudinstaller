@@ -5,6 +5,8 @@ read -p 'Domain (without https://): ' domain
 read -p 'Split the Domain into the part before .de / .com / .net etc. without subdomain (e.g. google for cloud.google.com / microsoft for xyz.microsoft.net: ' fqn
 read -p 'Now what is the ending? e.g. de / com / net (without a .):' tdl
 read -p 'Where is your reverse-proxy? (You need an apache2 and certbot installed) Tell me the container name or if on the host leave blank and just press enter:' revproxy
+read -p 'Admin-Username: ' adminuser
+read -p 'Admin-Password: ' adminpassword
 lxc init images:debian/11 $container
 lxc start $container
 ContainerIP=$(lxc list "$container" -c 4 | awk '!/IPV4/{ if ( $2 != "" ) print $2}')
@@ -32,6 +34,8 @@ lxc exec $container -- sh -c 'unzip -qq nextcloud-23.zip'
 lxc exec $container -- sh -c 'mv nextcloud /var/www/'
 lxc file push autoconfig.php $container/var/www/nextcloud/config/autoconfig.php
 lxc exec $container -- sh -c 'sed -i -r "s/replacewithpassword/'"$password"'/g" /var/www/nextcloud/config/autoconfig.php'
+lxc exec $container -- sh -c 'sed -i -r "s/replacewithadminpassword/'"$adminpassword"'/g" /var/www/nextcloud/config/autoconfig.php'
+lxc exec $container -- sh -c 'sed -i -r "s/replacewithadminuser/'"$adminuser"'/g" /var/www/nextcloud/config/autoconfig.php'
 lxc exec $container -- sh -c 'chown -R www-data:www-data /var/www/nextcloud && chmod -R 755 /var/www/nextcloud'
 lxc exec $container -- sh -c 'rm -r nextcloud-23.zip'
 lxc exec $container -- sh -c 'mv /root/vhost.conf /etc/apache2/sites-available/000-nextcloud.conf'
