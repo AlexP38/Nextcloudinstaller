@@ -44,7 +44,9 @@ lxc exec $revproxy 'a2ensite 000-nextcloud-container.conf'
 lxc exec $revproxy 'systemctl reload apache2'
 else
 ContainerIP=$(lxc list "$container" -c 4 | awk '!/IPV4/{ if ( $2 != "" ) print $2}')
-while [ $ContainerIP == '|' ] do
+while [ $ContainerIP == '|' ]
+do
+echo "Waiting for container IP"
 sleep 1
 ContainerIP=$(lxc list "$container" -c 4 | awk '!/IPV4/{ if ( $2 != "" ) print $2}')
 done
