@@ -36,9 +36,9 @@ lxc exec $container -- sh -c 'cp /root/vhost.conf /etc/apache2/sites-available/0
 lxc exec $container -- sh -c 'sed -i -r "s/replacewithdomain/'"$domain"'/g" /etc/apache2/sites-available/000-nextcloud.conf'
 lxc exec $container -- sh -c 'a2ensite 000-nextcloud.conf'
 lxc exec $container -- sh -c 'systemctl restart apache2'
-lxc exec $container -- sh -c 'sed -i -r "s/<termination desc=\"Connection via proxy where coolwsd acts as working via https, but actually uses http.\" type=\"bool\" default=\"true\">false</termination>/<termination desc=\"Connection via proxy where coolwsd acts as working via https, but actually uses http.\" type=\"bool\" default=\"true\">true</termination>/" /etc/coolwsd/coolwsd.xml'
-lxc exec $container -- sh -c 'sed -i -r "s/SSL support to enable.\" default=\"true\">ture</enable>/SSL support to enable.\" default=\"true\">false</enable>/" /etc/coolwsd/coolwsd.xml'
-lxc exec $container -- sh -c 'sed "/<wopi desc="Allow/deny wopi storage." allow="true">/ a <host desc="Regex pattern of hostname to allow or deny." allow="true">(?:.*\.)?'"$fqn"'\.'"$tdl"'</host>" /etc/coolwsd/coolwsd.xml'
+lxc exec $container -- sh -c 'sed -i -r "s/<termination desc=\"Connection via proxy where coolwsd acts as working via https, but actually uses http.\" type=\"bool\" default=\"true\">false<\/termination>/<termination desc=\"Connection via proxy where coolwsd acts as working via https, but actually uses http.\" type=\"bool\" default=\"true\">true<\/termination>/" /etc/coolwsd/coolwsd.xml'
+lxc exec $container -- sh -c 'sed -i -r s/SSL support to enable.\" default=\"true\">true<\/enable>/SSL support to enable.\" default=\"true\">false<\/enable>/" /etc/coolwsd/coolwsd.xml'
+lxc exec Test -- sh -c 'sed -i -r "s/<wopi desc=\"Allow\\/deny wopi storage.\" allow=\"true\">/<wopi desc=\"Allow\\/deny wopi storage.\" allow=\"true\">\n<host desc=\"Regex pattern of hostname to allow or deny.\" allow=\"true\">(?:.*\\\.)?'"$fqn"'\\\.'"$tdl"'<\/host>/" /etc/coolwsd/coolwsd.xml'
 lxc exec $container -- sh -c 'systemctl restart coolwsd'
 if [ $revproxy != 'host' ]
 then
