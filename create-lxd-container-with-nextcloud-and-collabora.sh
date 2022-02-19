@@ -10,7 +10,7 @@ lxc start $container
 lxc exec $container apt install wget
 lxc exec $container wget https://collaboraoffice.com/downloads/gpg/collaboraonline-release-keyring.gpg -P /usr/share/keyrings
 lxc file push vhost.conf $container/root/
-lxc file push collabora.sources $container/root/
+lxc file push collaboraonline.sources $container/root/
 lxc exec $container cp /root/collaboraonline.sources > /etc/apt/sources.list.d/collaboraonline.sources
 lxc exec $container apt update && apt -y install mariadb-server mariadb-client nano wget curl unzip php php-{cli,xml,zip,curl,gd,cgi,mysql,mbstring} apache2 libapache2-mod-php coolwsd code-brand
 lxc exec $container mysql --user="root" --execute="CREATE USER 'nextcloud'@'localhost' IDENTIFIED BY '$password'; CREATE DATABASE nextcloud; GRANT ALL PRIVILEGES ON nextcloud.* TO 'nextcloud'@'localhost'; FLUSH PRIVILEGES;"
