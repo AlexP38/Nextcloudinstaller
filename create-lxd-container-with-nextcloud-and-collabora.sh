@@ -32,10 +32,6 @@ lxc exec $container -- sh -c 'sed -i -r "s/max_execution_time = .*/max_execution
 lxc exec $container -- sh -c 'curl -o nextcloud-23.zip https://download.nextcloud.com/server/releases/latest-23.zip'
 lxc exec $container -- sh -c 'unzip -qq nextcloud-23.zip'
 lxc exec $container -- sh -c 'mv nextcloud /var/www/'
-#lxc file push autoconfig.php $container/var/www/nextcloud/config/autoconfig.php
-#lxc exec $container -- sh -c 'sed -i -r "s/replacewithpassword/'"$password"'/g" /var/www/nextcloud/config/autoconfig.php'
-#lxc exec $container -- sh -c 'sed -i -r "s/replacewithadminpassword/'"$adminpassword"'/g" /var/www/nextcloud/config/autoconfig.php'
-#lxc exec $container -- sh -c 'sed -i -r "s/replacewithadminuser/'"$adminuser"'/g" /var/www/nextcloud/config/autoconfig.php'
 lxc exec $container -- sh -c 'chown -R www-data:www-data /var/www/nextcloud && chmod -R 755 /var/www/nextcloud'
 lxc exec $container -- sh -c 'rm -r nextcloud-23.zip'
 lxc exec $container -- sh -c 'mv /root/vhost.conf /etc/apache2/sites-available/000-nextcloud.conf'
@@ -66,6 +62,5 @@ fi
 lxc exec $container -- sh -c 'sudo -u www-data php /var/www/nextcloud/occ maintenance:install --database "mysql" --database-name "nextcloud" --database-user "nextcloud" --database-pass "'"$password"'" --admin-user "'"$adminuser"'" --admin-pass "'"$adminpassword"'"'
 lxc exec $container -- sh -c 'sudo -u www-data php /var/www/nextcloud/occ config:system:set trusted_domains 1 --value='$domain''
 lxc exec $container -- sh -c 'sudo -u www-data php /var/www/nextcloud/occ app:install richdocuments'
-#lxc exec $container -- sh -c 'mysql --user="root" --execute "use nextcloud; UPDATE oc_appconfig SET configvalue=\"https://'"$domain"'\" where appid=\"richdocuments\" AND configkey=\"public_wopi_url\";UPDATE oc_appconfig SET configvalue=\"https://'"$domain"'\" where appid=\"richdocuments\" AND configkey=\"wopi_url\";UPDATE oc_appconfig SET configvalue=\"prevent_group_restriction\" where appid=\"richdocuments\" AND configkey=\"types\";"'
 lxc exec $container -- sh -c 'sudo -u www-data php /var/www/nextcloud/occ config:app:set --value "https://"'$domain'"" richdocuments wopi_url'
 echo "Done. Got to https://$domain and set up your nextcloud with an admin user. Collabora Office is already set up and running."
