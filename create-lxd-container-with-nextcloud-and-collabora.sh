@@ -1,7 +1,7 @@
 #/bin/bash
 read -p 'lxd-Container-Name: ' container
-read -p 'Mysql-Password: ' password
-read -p 'Domain: ' domain
+password=date +%s | sha256sum | base64 | head -c 32 ; echo
+read -p 'Domain (without https://): ' domain
 read -p 'Split the Domain into the part before .de / .com / .net etc. without subdomain (e.g. google for cloud.google.com / microsoft for xyz.microsoft.net: ' fqn
 read -p 'Now what is the ending? e.g. de / com / net (without a .):' tdl
 read -p 'Where is your reverse-proxy? (You need an apache2 and certbot installed) Tell me the container name or if on the host leave blank and just press enter:' revproxy
@@ -61,4 +61,4 @@ systemctl reload apache2
 fi
 lxc exec $container -- sh -c 'sudo -u www-data php /var/www/nextcloud/occ app:install richdocuments'
 lxc exec $container -- sh -c 'mysql --user="root" --execute "use nextcloud; UPDATE oc_appconfig SET configvalue=\"https://'"$domain"'\" where appid=\"richdocuments\" AND configkey=\"public_wopi_url\"";'
-echo "Done. Got to https://$domain and set up your nextcloud with a admin user and the database credentials (if neccasary) user: nextcloud, password: $password and database-name: nextcloud.\nInstall Nextcloud Office App and add https://$domain to Settings - Nextcloud Office when selecting to use a own server. "
+echo "Done. Got to https://$domain and set up your nextcloud with an admin user. Collabora Office is already set up and running."
