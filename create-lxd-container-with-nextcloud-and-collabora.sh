@@ -14,12 +14,12 @@ echo "Waiting for container IP"
 sleep 7
 ContainerIP=$(lxc list "$container" -c 4 | awk '!/IPV4/{ if ( $2 != "" ) print $2}')
 done
-lxc exec $container -- sh -c 'apt -qq install -y wget'
+lxc exec $container -- sh -c 'apt-get -qq install -y wget'
 lxc exec $container -- sh -c 'wget https://collaboraoffice.com/downloads/gpg/collaboraonline-release-keyring.gpg -P /usr/share/keyrings'
 lxc file push vhost.conf $container/root/vhost.conf
 lxc file push collaboraonline.sources $container/root/collaboraonline.sources
 lxc exec $container -- sh -c 'cp /root/collaboraonline.sources /etc/apt/sources.list.d/collaboraonline.sources'
-lxc exec $container -- sh -c 'apt -qq update && apt -qq -y install mariadb-server mariadb-client nano curl unzip php php-cli php-xml php-zip php-curl php-gd php-cgi php-mysql php-mbstring apache2 libapache2-mod-php coolwsd code-brand sed'
+lxc exec $container -- sh -c 'apt-get -qq update && apt-get -qq -y install mariadb-server mariadb-client nano curl unzip php php-cli php-xml php-zip php-curl php-gd php-cgi php-mysql php-mbstring apache2 libapache2-mod-php coolwsd code-brand sed'
 lxc exec $container -- sh -c 'mysql --user="root" --execute="CREATE USER \"nextcloud\"@\"localhost\" IDENTIFIED BY \"'"$password"'\"; CREATE DATABASE nextcloud; GRANT ALL PRIVILEGES ON nextcloud.* TO \"nextcloud\"@\"localhost\"; FLUSH PRIVILEGES;"'
 lxc exec $container -- sh -c 'a2enmod headers'
 lxc exec $container -- sh -c 'a2dissite 000-default.conf'
