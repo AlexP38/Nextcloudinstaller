@@ -15,7 +15,7 @@ sleep 7
 ContainerIP=$(lxc list "$container" -c 4 | awk '!/IPV4/{ if ( $2 != "" ) print $2}')
 done
 lxc exec $container -- sh -c 'apt install -y wget'
-lxc exec $container -- sh -c 'cd /usr/share/keyrings && wget https://collaboraoffice.com/downloads/gpg/collaboraonline-release-keyring.gpg'
+lxc exec $container -- sh -c 'wget https://collaboraoffice.com/downloads/gpg/collaboraonline-release-keyring.gpg -P /usr/share/keyrings'
 lxc file push vhost.conf $container/root/vhost.conf
 lxc file push collaboraonline.sources $container/root/collaboraonline.sources
 lxc exec $container -- sh -c 'cp /root/collaboraonline.sources /etc/apt/sources.list.d/collaboraonline.sources'
