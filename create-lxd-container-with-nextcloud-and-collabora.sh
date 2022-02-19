@@ -30,8 +30,8 @@ lxc exec $container -- sh -c 'sed -i -r "s/max_execution_time = .*/max_execution
 lxc exec $container -- sh -c 'curl -o nextcloud-23.zip https://download.nextcloud.com/server/releases/latest-23.zip'
 lxc exec $container -- sh -c 'unzip -qq nextcloud-23.zip'
 lxc exec $container -- sh -c 'mv nextcloud /var/www/'
-lxc file push config.php $container/var/www/nextcloud/config/config.php
-lxc exec $container -- sh -c 'sed -i -r "s/replacewithpassword/'"$password"'/g" /var/www/nextcloud/config/config.php'
+lxc file push autoconfig.php $container/var/www/nextcloud/config/autoconfig.php
+lxc exec $container -- sh -c 'sed -i -r "s/replacewithpassword/'"$password"'/g" /var/www/nextcloud/config/autoconfig.php'
 lxc exec $container -- sh -c 'chown -R www-data:www-data /var/www/nextcloud && chmod -R 755 /var/www/nextcloud'
 lxc exec $container -- sh -c 'rm -r nextcloud-23.zip'
 lxc exec $container -- sh -c 'mv /root/vhost.conf /etc/apache2/sites-available/000-nextcloud.conf'
@@ -42,7 +42,7 @@ lxc exec $container -- sh -c 'sed -i -r "s/<termination desc=\"Connection via pr
 lxc exec $container -- sh -c 'sed -i -r "s/SSL support to enable.\" default=\"true\">true<\/enable>/SSL support to enable.\" default=\"true\">false<\/enable>/" /etc/coolwsd/coolwsd.xml'
 lxc exec Test -- sh -c 'sed -i -r "s/<wopi desc=\"Allow\\/deny wopi storage.\" allow=\"true\">/<wopi desc=\"Allow\\/deny wopi storage.\" allow=\"true\">\n<host desc=\"Regex pattern of hostname to allow or deny.\" allow=\"true\">(?:.*\\\.)?'"$fqn"'\\\.'"$tdl"'<\/host>/" /etc/coolwsd/coolwsd.xml'
 lxc exec $container -- sh -c 'systemctl restart coolwsd'
-if [ $revproxy != '' ]
+if [ $revproxy != "" ]
 then
 lxc file push vhost-reverse-proxy.conf $revproxy/root/vhost-reverse-proxy.conf
 lxc exec $revproxy -- sh -c 'mv /root/vhost-reverse-proxy.conf /etc/apache2/sites-available/000-nextcloud-container.conf'
