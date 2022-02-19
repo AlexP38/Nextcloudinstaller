@@ -63,7 +63,7 @@ certbot certonly -d $domain --apache
 a2ensite 000-nextcloud-container.conf
 systemctl reload apache2
 fi
-lxc exec $container -- sh -c 'sudo -u www-data php /var/www/nextcloud/occ maintenance:install'
+lxc exec $container -- sh -c 'sudo -u www-data php /var/www/nextcloud/occ maintenance:install --database "mysql" --database-name "nextcloud" --database-user "nextcloud" --database-pass "'"$password"'" --admin-user "'"$adminuser"'" --admin-pass "'"$adminpassword"'"'
 lxc exec $container -- sh -c 'sudo -u www-data php /var/www/nextcloud/occ app:install richdocuments'
 lxc exec $container -- sh -c 'mysql --user="root" --execute "use nextcloud; UPDATE oc_appconfig SET configvalue=\"https://'"$domain"'\" where appid=\"richdocuments\" AND configkey=\"public_wopi_url\";UPDATE oc_appconfig SET configvalue=\"https://'"$domain"'\" where appid=\"richdocuments\" AND configkey=\"wopi_url\";UPDATE oc_appconfig SET configvalue=\"prevent_group_restriction\" where appid=\"richdocuments\" AND configkey=\"types\";"'
 echo "Done. Got to https://$domain and set up your nextcloud with an admin user. Collabora Office is already set up and running."
