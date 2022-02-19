@@ -67,4 +67,5 @@ lxc exec $container -- sh -c 'sudo -u www-data php /var/www/nextcloud/occ mainte
 lxc exec $container -- sh -c 'sudo -u www-data php /var/www/nextcloud/occ config:system:set trusted_domains 1 --value='$domain''
 lxc exec $container -- sh -c 'sudo -u www-data php /var/www/nextcloud/occ app:install richdocuments'
 lxc exec $container -- sh -c 'mysql --user="root" --execute "use nextcloud; UPDATE oc_appconfig SET configvalue=\"https://'"$domain"'\" where appid=\"richdocuments\" AND configkey=\"public_wopi_url\";UPDATE oc_appconfig SET configvalue=\"https://'"$domain"'\" where appid=\"richdocuments\" AND configkey=\"wopi_url\";UPDATE oc_appconfig SET configvalue=\"prevent_group_restriction\" where appid=\"richdocuments\" AND configkey=\"types\";"'
+lxc exec Test -- sh -c 'sudo -u www-data php /var/www/nextcloud/occ config:app:set --value "https://"'$domain'"" richdocuments wopi_url'
 echo "Done. Got to https://$domain and set up your nextcloud with an admin user. Collabora Office is already set up and running."
