@@ -19,7 +19,7 @@ lxc exec $container -- sh -c 'wget https://collaboraoffice.com/downloads/gpg/col
 lxc file push vhost.conf $container/root/vhost.conf
 lxc file push collaboraonline.sources $container/root/collaboraonline.sources
 lxc exec $container -- sh -c 'mv /root/collaboraonline.sources /etc/apt/sources.list.d/collaboraonline.sources'
-lxc exec $container -- sh -c 'apt-get -qq update && apt-get -qq -y install mariadb-server mariadb-client nano curl unzip php php-cli php-xml php-zip php-curl php-gd php-cgi php-mysql php-mbstring apache2 libapache2-mod-php coolwsd code-brand sed'
+lxc exec $container -- sh -c 'apt-get -qq update && apt-get -qq -y install mariadb-server mariadb-client nano curl unzip php php-cli php-xml php-zip php-curl php-gd php-cgi php-mysql php-mbstring php-intl php-bcmath php-gmp php-imagick apache2 libapache2-mod-php coolwsd code-brand sed'
 lxc exec $container -- sh -c 'mysql --user="root" --execute="CREATE USER \"nextcloud\"@\"localhost\" IDENTIFIED BY \"'"$password"'\"; CREATE DATABASE nextcloud; GRANT ALL PRIVILEGES ON nextcloud.* TO \"nextcloud\"@\"localhost\"; FLUSH PRIVILEGES;"'
 lxc exec $container -- sh -c 'a2enmod headers'
 lxc exec $container -- sh -c 'a2dissite 000-default.conf'
@@ -59,4 +59,6 @@ certbot certonly -d $domain --apache
 a2ensite 000-nextcloud-container.conf
 systemctl reload apache2
 fi
+lxc exec $container -- sh -c 'sudo -u www-data php /var/www/nextcloud/occ app:install richdocuments'
+lxc exec $container -- sh -c 'mysql --user="root" --execute "use nextcloud; UPDATE oc_appconfig SET configvalue=\"https://'"$domain"'\" where appid=\"richdocuments\" AND configkey=\"public_wopi_url\"";'
 echo "Done. Got to https://$domain and set up your nextcloud with a admin user and the database credentials (if neccasary) user: nextcloud, password: $password and database-name: nextcloud.\nInstall Nextcloud Office App and add https://$domain to Settings - Nextcloud Office when selecting to use a own server. "
