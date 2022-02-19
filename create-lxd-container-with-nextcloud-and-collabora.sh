@@ -1,6 +1,6 @@
 #/bin/bash
 read -p 'lxd-Container-Name: ' container
-password=date +%s | sha256sum | base64 | head -c 32 ; echo
+password=$(date +%s | sha256sum | base64 | head -c 32 ; echo)
 read -p 'Domain (without https://): ' domain
 read -p 'Split the Domain into the part before .de / .com / .net etc. without subdomain (e.g. google for cloud.google.com / microsoft for xyz.microsoft.net: ' fqn
 read -p 'Now what is the ending? e.g. de / com / net (without a .):' tdl
