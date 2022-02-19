@@ -19,7 +19,8 @@ lxc exec $container -- sh -c 'wget https://collaboraoffice.com/downloads/gpg/col
 lxc file push vhost.conf $container/root/vhost.conf
 lxc file push collaboraonline.sources $container/root/collaboraonline.sources
 lxc exec $container -- sh -c 'cp /root/collaboraonline.sources /etc/apt/sources.list.d/collaboraonline.sources'
-lxc exec $container -- sh -c 'apt update && apt -y install mariadb-server mariadb-client nano wget curl unzip php php-{cli,xml,zip,curl,gd,cgi,mysql,mbstring} apache2 libapache2-mod-php coolwsd code-brand sed'
+lxc exec $container -- sh -c 'apt -y install php php-{cli,xml,zip,curl,gd,cgi,mysql,mbstring}'
+lxc exec $container -- sh -c 'apt update && apt -y install mariadb-server mariadb-client nano wget curl unzip apache2 libapache2-mod-php coolwsd code-brand sed'
 lxc exec $container -- sh -c 'mysql --user="root" --execute="CREATE USER "nextcloud\"@\"localhost\" IDENTIFIED BY \"'"$password"'\"; CREATE DATABASE nextcloud; GRANT ALL PRIVILEGES ON nextcloud.* TO \"nextcloud\"@\"localhost\"; FLUSH PRIVILEGES;"'
 lxc exec $container -- sh -c 'a2enmod headers'
 lxc exec $container -- sh -c 'a2dissite 000-default.conf'
