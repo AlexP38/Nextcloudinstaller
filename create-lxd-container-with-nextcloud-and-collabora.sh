@@ -43,7 +43,7 @@ lxc exec $revproxy 'certbot certonly -d $domain --apache'
 lxc exec $revproxy 'a2ensite 000-nextcloud-container.conf'
 lxc exec $revproxy 'systemctl reload apache2'
 else
-cp vhost-reverse-proxy.conf > /etc/apache2/sites-available/000-nextcloud-container.conf
+cp vhost-reverse-proxy.conf /etc/apache2/sites-available/000-nextcloud-container.conf
 sed -i -r 's/replacewithdomain/$domain/g' /etc/apache2/sites-available/000-nextcloud-container.conf
 sed -i -r 's/replacewithcontainer/$container/g' /etc/apache2/sites-available/000-nextcloud-container.conf
 certbot certonly -d $domain --apache
