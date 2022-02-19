@@ -7,7 +7,7 @@ read -p 'Now what is the ending? e.g. de / com / net (without a .):' tdl
 read -p 'Where is your reverse-proxy? (You need an apache2 and certbot installed) Tell me the container name or if on the host say "host":' revproxy
 lxc init images:debian/11 $container
 lxc start $container
-lxc exec $container apt install -y wget
+lxc exec $container apt -y install wget
 lxc exec $container cd /usr/share/keyrings && wget https://collaboraoffice.com/downloads/gpg/collaboraonline-release-keyring.gpg
 lxc file push vhost.conf $container/root/vhost.conf
 lxc file push collaboraonline.sources $container/root/collaboraonline.sources
