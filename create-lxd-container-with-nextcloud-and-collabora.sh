@@ -18,7 +18,7 @@ lxc exec $container -- sh -c 'apt-get -qq install -y wget'
 lxc exec $container -- sh -c 'wget https://collaboraoffice.com/downloads/gpg/collaboraonline-release-keyring.gpg -P /usr/share/keyrings'
 lxc file push vhost.conf $container/root/vhost.conf
 lxc file push collaboraonline.sources $container/root/collaboraonline.sources
-lxc exec $container -- sh -c 'cp /root/collaboraonline.sources /etc/apt/sources.list.d/collaboraonline.sources'
+lxc exec $container -- sh -c 'mv /root/collaboraonline.sources /etc/apt/sources.list.d/collaboraonline.sources'
 lxc exec $container -- sh -c 'apt-get -qq update && apt-get -qq -y install mariadb-server mariadb-client nano curl unzip php php-cli php-xml php-zip php-curl php-gd php-cgi php-mysql php-mbstring apache2 libapache2-mod-php coolwsd code-brand sed'
 lxc exec $container -- sh -c 'mysql --user="root" --execute="CREATE USER \"nextcloud\"@\"localhost\" IDENTIFIED BY \"'"$password"'\"; CREATE DATABASE nextcloud; GRANT ALL PRIVILEGES ON nextcloud.* TO \"nextcloud\"@\"localhost\"; FLUSH PRIVILEGES;"'
 lxc exec $container -- sh -c 'a2enmod headers'
@@ -30,9 +30,11 @@ lxc exec $container -- sh -c 'sed -i -r "s/max_execution_time = .*/max_execution
 lxc exec $container -- sh -c 'curl -o nextcloud-23.zip https://download.nextcloud.com/server/releases/latest-23.zip'
 lxc exec $container -- sh -c 'unzip -qq nextcloud-23.zip'
 lxc exec $container -- sh -c 'mv nextcloud /var/www/'
+lxc file push config.php $container/var/www/nextcloud/config/config.php
+lxc exec $container -- sh -c 'sed -i -r "s/replacewithpassword/'"$password"'/g" /var/www/nextcloud/config/config.php'
 lxc exec $container -- sh -c 'chown -R www-data:www-data /var/www/nextcloud && chmod -R 755 /var/www/nextcloud'
 lxc exec $container -- sh -c 'rm -r nextcloud-23.zip'
-lxc exec $container -- sh -c 'cp /root/vhost.conf /etc/apache2/sites-available/000-nextcloud.conf'
+lxc exec $container -- sh -c 'mv /root/vhost.conf /etc/apache2/sites-available/000-nextcloud.conf'
 lxc exec $container -- sh -c 'sed -i -r "s/replacewithdomain/'"$domain"'/g" /etc/apache2/sites-available/000-nextcloud.conf'
 lxc exec $container -- sh -c 'a2ensite 000-nextcloud.conf'
 lxc exec $container -- sh -c 'systemctl restart apache2'
@@ -43,7 +45,7 @@ lxc exec $container -- sh -c 'systemctl restart coolwsd'
 if [ $revproxy != '' ]
 then
 lxc file push vhost-reverse-proxy.conf $revproxy/root/vhost-reverse-proxy.conf
-lxc exec $revproxy -- sh -c 'cp /root/vhost-reverse-proxy.conf /etc/apache2/sites-available/000-nextcloud-container.conf'
+lxc exec $revproxy -- sh -c 'mv /root/vhost-reverse-proxy.conf /etc/apache2/sites-available/000-nextcloud-container.conf'
 lxc exec $revproxy -- sh -c 'sed -i -r "s/replacewithdomain/'"$domain"'/g" /etc/apache2/sites-available/000-nextcloud-container.conf'
 lxc exec $revproxy -- sh -c 'sed -i -r "s/replacewithcontainer/'"$container"'/g" /etc/apache2/sites-available/000-nextcloud-container.conf'
 lxc exec $revproxy -- sh -c 'certbot certonly -d $domain --apache'
@@ -57,4 +59,4 @@ certbot certonly -d $domain --apache
 a2ensite 000-nextcloud-container.conf
 systemctl reload apache2
 fi
-echo "Done. Got to https://$domain and set up your nextcloud with a admin user and the database credentials user: nextcloud, password: $password and database-name: nextcloud.\nInstall Nextcloud Office App and add https://$domain to Settings - Nextcloud Office when selecting to use a own server. "
+echo "Done. Got to https://$domain and set up your nextcloud with a admin user and the database credentials (if neccasary) user: nextcloud, password: $password and database-name: nextcloud.\nInstall Nextcloud Office App and add https://$domain to Settings - Nextcloud Office when selecting to use a own server. "
