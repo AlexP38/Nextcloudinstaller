@@ -1,6 +1,6 @@
 #/bin/bash
 read -p 'lxd-Container-Name: ' container
-read -sp 'Mysql-Password: ' password
+read -s -p 'Mysql-Password: ' password
 read -p 'Domain: ' domain
 read -p 'Split the Domain into the part before .de / .com / .net etc. without subdomain (e.g. google for cloud.google.com / microsoft for xyz.microsoft.net: ' fqn
 read -p 'Now what is the ending? e.g. de / com / net (without a .):' tdl
