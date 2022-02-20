@@ -78,20 +78,20 @@ systemctl restart coolwsd'
 if [ "$revproxy" != "" ]
 then
 lxc file push vhost-reverse-proxy.conf $revproxy/root/vhost-reverse-proxy.conf
-lxc exec $revproxy -- sh -c 'mv /root/vhost-reverse-proxy.conf /etc/apache2/sites-available/000-nextcloud-container.conf && \
-sed -i -r "s/replacewithdomain/'"$domain"'/g" /etc/apache2/sites-available/000-nextcloud-container.conf && \
-sed -i -r "s/replacewithcontainer/'"$container"'/g" /etc/apache2/sites-available/000-nextcloud-container.conf && \
-sed -i -r "s/replacewithcollaboracontainer/'"$container2"'/g" /etc/apache2/sites-available/000-nextcloud-container.conf && \
+lxc exec $revproxy -- sh -c 'mv /root/vhost-reverse-proxy.conf /etc/apache2/sites-available/'"$container"'-'"$container2"'-container.conf && \
+sed -i -r "s/replacewithdomain/'"$domain"'/g" /etc/apache2/sites-available/'"$container"'--'"$container2"'container.conf && \
+sed -i -r "s/replacewithcontainer/'"$container"'/g" /etc/apache2/sites-available/'"$container"'--'"$container2"'container.conf && \
+sed -i -r "s/replacewithcollaboracontainer/'"$container2"'/g" /etc/apache2/sites-available/'"$container"'-'"$container2"'-container.conf && \
 certbot certonly -d $domain --apache && \
-a2ensite 000-nextcloud-container.conf && \
+a2ensite '"$container"'-'"$container2"'-container.conf && \
 systemctl reload apache2'
 else
-cp vhost-reverse-proxy.conf /etc/apache2/sites-available/000-nextcloud-container.conf && \
-sed -i -r 's/replacewithdomain/'"$domain"'/g' /etc/apache2/sites-available/000-nextcloud-container.conf && \
-sed -i -r 's/replacewithcontainer/'"$ContainerIP"'/g' /etc/apache2/sites-available/000-nextcloud-container.conf && \
-sed -i -r 's/replacewithcollaboracontainer/'"$ContainerIP2"'/g' /etc/apache2/sites-available/000-nextcloud-container.conf && \
+cp vhost-reverse-proxy.conf /etc/apache2/sites-available/"$container"-container.conf && \
+sed -i -r 's/replacewithdomain/'"$domain"'/g' /etc/apache2/sites-available/"$container"-"$container2"-container.conf && \
+sed -i -r 's/replacewithcontainer/'"$ContainerIP"'/g' /etc/apache2/sites-available/"$container"-"$container2"-container.conf && \
+sed -i -r 's/replacewithcollaboracontainer/'"$ContainerIP2"'/g' /etc/apache2/sites-available/"$container"-"$container2"-container.conf && \
 certbot certonly -d $domain --apache && \
-a2ensite 000-nextcloud-container.conf && \
+a2ensite "$container"-"$container2"-container.conf && \
 systemctl reload apache2
 fi
 lxc exec $container -- sh -c 'sudo -u www-data php /var/www/nextcloud/occ maintenance:install --database "mysql" --database-name "nextcloud" --database-user "nextcloud" --database-pass "'"$password"'" --admin-user "'"$adminuser"'" --admin-pass "'"$adminpassword"'" && \

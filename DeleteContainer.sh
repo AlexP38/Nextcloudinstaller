@@ -12,7 +12,7 @@ else
 read -p 'lxd-Nextcloud-Container-Name: ' container
 read -p 'lxd-Collabora-Container-Name: ' container2
 fi
-a2dissite 000-nextcloud-container.conf
+a2dissite "$container"-"$container2"-container.conf
 systemctl restart apache2
 rm /etc/apache2/sites-available/000-nextcloud-container.conf
 lxc stop $container && lxc delete $container
