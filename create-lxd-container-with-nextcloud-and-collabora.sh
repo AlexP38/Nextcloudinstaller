@@ -13,9 +13,9 @@ read -p 'lxd-Nextcloud-Container-Name: ' container
 read -p 'lxd-Collabora-Container-Name: ' container2
 fi
 password=$(date +%s | sha256sum | base64 | head -c 32 ; echo)
-read -p 'Domain (without https://): ' domain
-read -p 'Split the Domain into the part before .de / .com / .net etc. without subdomain (e.g. google for cloud.google.com / microsoft for xyz.microsoft.net: ' fqn
-read -p 'Now what is the ending? e.g. de / com / net (without a .):' tdl
+read -p 'Domain (without https:// and no /cloud etc. e.g. cloud.google.com): ' domain
+fqn=$(echo "$domain" | awk -F[..] '{print $(NF-1)}')
+tdl=$(echo "$domain" | awk -F[..] '{print $(NF-0)}')
 read -p 'Where is your reverse-proxy? (You need an apache2 and certbot installed) Tell me the container name or if on the host leave blank and just press enter:' revproxy
 read -p 'Admin-Username: ' adminuser
 read -p 'Admin-Password: ' adminpassword
@@ -45,7 +45,7 @@ sed -i -r "s/upload_max_filesize = .*/upload_max_filesize = 500M/" /etc/php/*/ap
 sed -i -r "s/post_max_size = .*/post_max_size = 500M/" /etc/php/*/apache2/php.ini && \
 sed -i -r "s/max_execution_time = .*/max_execution_time = 300/" /etc/php/*/apache2/php.ini && \
 sed -i -e "\$aapc.enable_cli=1" /etc/php/7.4/apache2/php.ini && \
-curl -o nextcloud-23.zip https://download.nextcloud.com/server/releases/latest-23.zip && \
+curl -o nextcloud-23.zip https://download.nextcloud.com/server/releases/latest.zip && \
 unzip -qq nextcloud-23.zip && \
 mv nextcloud /var/www/ && \
 chown -R www-data:www-data /var/www/nextcloud && \
@@ -54,6 +54,7 @@ rm -r nextcloud-23.zip && \
 mv /root/vhost.conf /etc/apache2/sites-available/000-nextcloud.conf && \
 sed -i -r "s/replacewithdomain/'"$domain"'/g" /etc/apache2/sites-available/000-nextcloud.conf && \
 a2ensite 000-nextcloud.conf && \
+phpenmod apcu && \
 systemctl restart apache2'
 if [ $diff = "Y" ]
 then
@@ -74,7 +75,7 @@ sed -i -r "s/<termination desc=\"Connection via proxy where coolwsd acts as work
 sed -i -r "s/SSL support to enable.\" default=\"true\">true<\/enable>/SSL support to enable.\" default=\"true\">false<\/enable>/" /etc/coolwsd/coolwsd.xml && \
 sed -i -r "s/<wopi desc=\"Allow\\/deny wopi storage.\" allow=\"true\">/<wopi desc=\"Allow\\/deny wopi storage.\" allow=\"true\">\n<host desc=\"Regex pattern of hostname to allow or deny.\" allow=\"true\">(?:.*\\\.)?'"$fqn"'\\\.'"$tdl"'<\/host>/" /etc/coolwsd/coolwsd.xml && \
 systemctl restart coolwsd'
-if [ $revproxy != "" ]
+if [ "$revproxy" != "" ]
 then
 lxc file push vhost-reverse-proxy.conf $revproxy/root/vhost-reverse-proxy.conf
 lxc exec $revproxy -- sh -c 'mv /root/vhost-reverse-proxy.conf /etc/apache2/sites-available/000-nextcloud-container.conf && \
@@ -99,7 +100,7 @@ sudo -u www-data php /var/www/nextcloud/occ config:system:set trusted_proxies 1 
 sudo -u www-data php /var/www/nextcloud/occ config:system:set overwrite.cli.url --value=https://'$domain' && \
 sudo -u www-data php /var/www/nextcloud/occ config:system:set overwriteprotocol --value=https && \
 sudo -u www-data php /var/www/nextcloud/occ config:system:set default_phone_region --value=DE && \
-sudo -u www-data php /var/www/nextcloud/occ config:system:set memcache.local --value="\OC\Memcache\APCu" && \
 sudo -u www-data php /var/www/nextcloud/occ app:install richdocuments && \
-sudo -u www-data php /var/www/nextcloud/occ config:app:set --value "https://"'$domain'"" richdocuments wopi_url'
+sudo -u www-data php /var/www/nextcloud/occ config:app:set --value "https://"'$domain'"" richdocuments wopi_url && \
+sudo -u www-data php /var/www/nextcloud/occ config:system:set memcache.local --value="\OC\Memcache\APCu"'
 echo "Done. Got to https://$domain and set up your nextcloud with an admin user. Collabora Office is already set up and running."
