@@ -80,7 +80,9 @@ systemctl restart coolwsd'
 if [ "$revproxy" != "" ]
 then
 lxc file push vhost-reverse-proxy.conf $revproxy/root/vhost-reverse-proxy.conf
-lxc exec $revproxy -- sh -c 'mv /root/vhost-reverse-proxy.conf /etc/apache2/sites-available/'"$container"'-'"$container2"'-container.conf && \
+lxc exec $revproxy -- sh -c 'apt install apache2 certbot python3-certbot-apache && \
+a2enmod proxy proxy_wstunnel ssl headers rewrite proxy_http && \
+mv /root/vhost-reverse-proxy.conf /etc/apache2/sites-available/'"$container"'-'"$container2"'-container.conf && \
 sed -i -r "s/replacewithdomain/'"$domain"'/g" /etc/apache2/sites-available/'"$container"'-'"$container2"'-container.conf && \
 sed -i -r "s/replacewithcontainer/'"$ContainerIP"'/g" /etc/apache2/sites-available/'"$container"'-'"$container2"'-container.conf && \
 sed -i -r "s/replacewithcollaboracontainer/'"$ContainerIP2"'/g" /etc/apache2/sites-available/'"$container"'-'"$container2"'-container.conf && \
@@ -88,6 +90,8 @@ certbot certonly -d '"$domain"' --apache && \
 a2ensite '"$container"'-'"$container2"'-container.conf && \
 systemctl reload apache2'
 else
+apt install apache2 certbot python3-certbot-apache && \
+a2enmod proxy proxy_wstunnel ssl headers rewrite proxy_http && \
 cp vhost-reverse-proxy.conf /etc/apache2/sites-available/"$container"-"$container2"-container.conf && \
 sed -i -r 's/replacewithdomain/'"$domain"'/g' /etc/apache2/sites-available/"$container"-"$container2"-container.conf && \
 sed -i -r 's/replacewithcontainer/'"$ContainerIP"'/g' /etc/apache2/sites-available/"$container"-"$container2"-container.conf && \
