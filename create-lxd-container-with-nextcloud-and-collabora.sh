@@ -82,7 +82,7 @@ lxc exec $revproxy -- sh -c 'mv /root/vhost-reverse-proxy.conf /etc/apache2/site
 sed -i -r "s/replacewithdomain/'"$domain"'/g" /etc/apache2/sites-available/'"$container"'-'"$container2"'-container.conf && \
 sed -i -r "s/replacewithcontainer/'"$ContainerIP"'/g" /etc/apache2/sites-available/'"$container"'-'"$container2"'-container.conf && \
 sed -i -r "s/replacewithcollaboracontainer/'"$ContainerIP2"'/g" /etc/apache2/sites-available/'"$container"'-'"$container2"'-container.conf && \
-certbot certonly -d $domain --apache && \
+certbot certonly -d '"$domain"' --apache && \
 a2ensite '"$container"'-'"$container2"'-container.conf && \
 systemctl reload apache2'
 else
