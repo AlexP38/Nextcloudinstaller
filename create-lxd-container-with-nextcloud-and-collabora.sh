@@ -33,6 +33,7 @@ echo "Waiting for container IP"
 sleep 8
 ContainerIP=$(lxc list "$container" -c 4 | awk '!/IPV4/{ if ( $2 != "" ) print $2}')
 done
+lxc config device set $container eth0 ipv4.address $ContainerIP
 lxc file push vhost.conf $container/root/vhost.conf
 lxc file push collaboraonline.sources $container2/root/collaboraonline.sources
 lxc exec $container -- sh -c 'apt-get -qq install -y wget && \
@@ -65,6 +66,7 @@ echo "Waiting for collabora-container IP"
 sleep 2
 ContainerIP=$(lxc list "$container" -c 4 | awk '!/IPV4/{ if ( $2 != "" ) print $2}')
 done
+lxc config device set $container2 eth0 ipv4.address $ContainerIP2
 fi
 lxc exec $container2 -- sh -c 'apt-get -qq install -y wget && \
 wget https://collaboraoffice.com/downloads/gpg/collaboraonline-release-keyring.gpg -P /usr/share/keyrings && \
