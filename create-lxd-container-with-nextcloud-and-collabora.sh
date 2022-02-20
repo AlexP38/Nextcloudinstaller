@@ -1,6 +1,6 @@
 #/bin/bash
 diff=""
-while [ $diff != "Y" && != "N" ]
+while [ $diff != "Y" && $diff != "N" ]
 do
 read -p 'Do you want Nextcloud and Collabora in different Containers? (Y/N)' diff
 done
