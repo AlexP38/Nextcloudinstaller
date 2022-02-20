@@ -1,6 +1,6 @@
 #/bin/bash
 diff=""
-while [ $diff != "Y" && $diff != "N" ]
+while [ "$diff" != "Y" ] && [ "$diff" != "N" ]
 do
 read -p 'Do you want Nextcloud and Collabora in different Containers? (Y/N)' diff
 done
@@ -27,7 +27,7 @@ lxc init images:debian/11 $container2
 lxc start $container2
 fi
 ContainerIP=$(lxc list "$container" -c 4 | awk '!/IPV4/{ if ( $2 != "" ) print $2}')
-while [ $ContainerIP = '|' ]
+while [ "$ContainerIP" = "|" ]
 do
 echo "Waiting for container IP"
 sleep 8
@@ -57,7 +57,7 @@ systemctl restart apache2'
 if [ $diff = "Y" ]
 then
 ContainerIP2=$(lxc list "$container2" -c 4 | awk '!/IPV4/{ if ( $2 != "" ) print $2}')
-while [ $ContainerIP2 = '|' ]
+while [ "$ContainerIP2" = "|" ]
 do
 echo "Waiting for collabora-container IP"
 sleep 2
