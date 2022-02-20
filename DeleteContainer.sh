@@ -12,9 +12,18 @@ else
 read -p 'lxd-Nextcloud-Container-Name: ' container
 read -p 'lxd-Collabora-Container-Name: ' container2
 fi
+read -p 'Where is your reverse-proxy? (You need an apache2 and certbot installed) Tell me the container name or if on the host leave blank and just press enter:' revproxy
+
+if [ "$revproxy" != "" ]
+then
+lxc exec $revproxy -- sh -c 'a2dissite "$container"-"$container2"-container.conf && \
+systemctl reload apache2 && \
+rm /etc/apache2/sites-available/000-nextcloud-container.conf'
+else
 a2dissite "$container"-"$container2"-container.conf
-systemctl restart apache2
+systemctl reload apache2
 rm /etc/apache2/sites-available/000-nextcloud-container.conf
+fi
 lxc stop $container && lxc delete $container
 if [ $diff = "Y" ]
 then
