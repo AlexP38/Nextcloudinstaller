@@ -17,10 +17,10 @@ read -p 'Domain (without https:// and no /cloud etc. e.g. cloud.google.com): ' d
 fqn=$(echo "$domain" | awk -F[..] '{print $(NF-1)}')
 tdl=$(echo "$domain" | awk -F[..] '{print $(NF-0)}')
 read -p 'Where is your reverse-proxy? (You need an apache2 and certbot installed) Tell me the container name or if on the host leave blank and just press enter:' revproxy
-installapache=""
-while [ "$installapache" != "Y" ] && [ "$installapache" != "N" ]
+apache=""
+while [ "$apache" != "Y" ] && [ "$apache" != "N" ]
 do
-read 'Do you need apache and certbot to be installed on the Host? [Y/N] ' installapache
+read -p 'Do you need apache and certbot to be installed on the Host? [Y/N] ' apache
 done
 read -p 'Admin-Username: ' adminuser
 read -p 'Admin-Password: ' adminpassword
@@ -83,7 +83,7 @@ systemctl restart coolwsd'
 if [ "$revproxy" != "" ]
 then
 lxc file push vhost-reverse-proxy.conf $revproxy/root/vhost-reverse-proxy.conf
-if [ $installapache = "Y" ]
+if [ $apache = "Y" ]
 then
 lxc exec $revproxy -- sh -c 'apt install -y apache2 certbot python3-certbot-apache'
 fi
@@ -96,18 +96,19 @@ certbot certonly -d '"$domain"' --apache && \
 a2ensite '"$container"'-'"$container2"'-container.conf && \
 systemctl reload apache2'
 else
-if [ $installapache = "Y" ]
+echo "Admin rights are required to set up the reverse-Proxy Config with apache on the Host"
+if [ $apache = "Y" ]
 then
-apt install -y apache2 certbot python3-certbot-apache
+sudo apt install -y apache2 certbot python3-certbot-apache
 fi
-a2enmod proxy proxy_wstunnel ssl headers rewrite proxy_http && \
-cp vhost-reverse-proxy.conf /etc/apache2/sites-available/"$container"-"$container2"-container.conf && \
-sed -i -r 's/replacewithdomain/'"$domain"'/g' /etc/apache2/sites-available/"$container"-"$container2"-container.conf && \
-sed -i -r 's/replacewithcontainer/'"$ContainerIP"'/g' /etc/apache2/sites-available/"$container"-"$container2"-container.conf && \
-sed -i -r 's/replacewithcollaboracontainer/'"$ContainerIP2"'/g' /etc/apache2/sites-available/"$container"-"$container2"-container.conf && \
-certbot certonly -d $domain --apache && \
-a2ensite "$container"-"$container2"-container.conf && \
-systemctl reload apache2
+sudo a2enmod proxy proxy_wstunnel ssl headers rewrite proxy_http && \
+sudo cp vhost-reverse-proxy.conf /etc/apache2/sites-available/"$container"-"$container2"-container.conf && \
+sudo sed -i -r 's/replacewithdomain/'"$domain"'/g' /etc/apache2/sites-available/"$container"-"$container2"-container.conf && \
+sudo sed -i -r 's/replacewithcontainer/'"$ContainerIP"'/g' /etc/apache2/sites-available/"$container"-"$container2"-container.conf && \
+sudo sed -i -r 's/replacewithcollaboracontainer/'"$ContainerIP2"'/g' /etc/apache2/sites-available/"$container"-"$container2"-container.conf && \
+sudo certbot certonly -d $domain --apache && \
+sudo a2ensite "$container"-"$container2"-container.conf && \
+sudo systemctl reload apache2
 fi
 lxc exec $container -- sh -c 'sudo -u www-data php /var/www/nextcloud/occ maintenance:install --database "mysql" --database-name "nextcloud" --database-user "nextcloud" --database-pass "'"$password"'" --admin-user "'"$adminuser"'" --admin-pass "'"$adminpassword"'" && \
 sudo -u www-data php /var/www/nextcloud/occ config:system:set trusted_domains 1 --value='$domain' && \
