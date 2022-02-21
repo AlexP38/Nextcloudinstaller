@@ -17,6 +17,11 @@ read -p 'Domain (without https:// and no /cloud etc. e.g. cloud.google.com): ' d
 fqn=$(echo "$domain" | awk -F[..] '{print $(NF-1)}')
 tdl=$(echo "$domain" | awk -F[..] '{print $(NF-0)}')
 read -p 'Where is your reverse-proxy? (You need an apache2 and certbot installed) Tell me the container name or if on the host leave blank and just press enter:' revproxy
+installapache=""
+while [ "$installapache" != "Y" ] && [ "$installapache" != "N" ]
+do
+read 'Do you need apache and certbot to be installed on the Host? [Y/N] ' installapache
+done
 read -p 'Admin-Username: ' adminuser
 read -p 'Admin-Password: ' adminpassword
 lxc init images:debian/11 $container
@@ -78,11 +83,6 @@ systemctl restart coolwsd'
 if [ "$revproxy" != "" ]
 then
 lxc file push vhost-reverse-proxy.conf $revproxy/root/vhost-reverse-proxy.conf
-installapache=""
-while [ "$installapache" != "Y" ] && [ "$installapache" != "N" ]
-do
-read 'Do you need apache and certbot to be installed on the Reverse-Proxy? [Y/N] ' installapache
-done
 if [ $installapache = "Y" ]
 then
 lxc exec $revproxy -- sh -c 'apt install -y apache2 certbot python3-certbot-apache'
@@ -96,11 +96,6 @@ certbot certonly -d '"$domain"' --apache && \
 a2ensite '"$container"'-'"$container2"'-container.conf && \
 systemctl reload apache2'
 else
-installapache=""
-while [ "$installapache" != "Y" ] && [ "$installapache" != "N" ]
-do
-read 'Do you need apache and certbot to be installed on the Host? [Y/N] ' installapache
-done
 if [ $installapache = "Y" ]
 then
 apt install -y apache2 certbot python3-certbot-apache
