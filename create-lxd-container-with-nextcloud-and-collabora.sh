@@ -119,4 +119,5 @@ sudo -u www-data php /var/www/nextcloud/occ config:system:set default_phone_regi
 sudo -u www-data php /var/www/nextcloud/occ app:install richdocuments && \
 sudo -u www-data php /var/www/nextcloud/occ config:app:set --value "https://"'$domain'"" richdocuments wopi_url && \
 sudo -u www-data php /var/www/nextcloud/occ config:system:set memcache.local --value="\OC\Memcache\APCu"'
+#sudo iptables -I INPUT -i lxdbr0 -p tcp -m multiport --dports 443 -m state --state NEW,ESTABLISHED -j ACCEPT
 echo "Done. Got to https://$domain and set up your nextcloud with an admin user. Collabora Office is already set up and running."
