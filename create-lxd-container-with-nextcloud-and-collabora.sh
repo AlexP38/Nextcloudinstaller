@@ -41,7 +41,7 @@ done
 lxc file push vhost.conf $container/root/vhost.conf
 lxc file push collaboraonline.sources $container2/root/collaboraonline.sources
 lxc exec $container -- sh -c 'apt-get -qq install -y wget && \
- apt-get -qq -y install mariadb-server mariadb-client nano curl unzip php php-cli php-xml php-zip php-curl php-gd php-cgi php-mysql php-mbstring php-intl php-bcmath php-gmp php-imagick apache2 libapache2-mod-php libmagickcore-6.q16-6-extra php-apcu sed && \
+ apt-get -qq -y install mariadb-server mariadb-client nano curl unzip php php-cli php-xml php-zip php-curl php-gd php-cgi php-mysql php-mbstring php-intl php-bcmath php-gmp php-imagick apache2 libapache2-mod-php libmagickcore-6.q16-6-extra php-apcu sed unattended-upgrades apt-listchanges && \
 mysql --user="root" --execute="CREATE USER \"nextcloud\"@\"localhost\" IDENTIFIED BY \"'"$password"'\"; CREATE DATABASE nextcloud; GRANT ALL PRIVILEGES ON nextcloud.* TO \"nextcloud\"@\"localhost\"; FLUSH PRIVILEGES;" && \
 a2enmod headers && \
 a2dissite 000-default.conf && \
@@ -75,7 +75,7 @@ lxc exec $container2 -- sh -c 'apt-get -qq install -y wget && \
 wget https://collaboraoffice.com/downloads/gpg/collaboraonline-release-keyring.gpg -P /usr/share/keyrings && \
 mv /root/collaboraonline.sources /etc/apt/sources.list.d/collaboraonline.sources && \
 apt-get -qq update && \
-apt-get -qq install -y nano curl unzip coolwsd code-brand sed && \
+apt-get -qq install -y nano curl unzip coolwsd code-brand sed unattended-upgrades apt-listchanges && \
 sed -i -r "s/<termination desc=\"Connection via proxy where coolwsd acts as working via https, but actually uses http.\" type=\"bool\" default=\"true\">false<\/termination>/<termination desc=\"Connection via proxy where coolwsd acts as working via https, but actually uses http.\" type=\"bool\" default=\"true\">true<\/termination>/" /etc/coolwsd/coolwsd.xml && \
 sed -i -r "s/SSL support to enable.\" default=\"true\">true<\/enable>/SSL support to enable.\" default=\"true\">false<\/enable>/" /etc/coolwsd/coolwsd.xml && \
 sed -i -r "s/<wopi desc=\"Allow\\/deny wopi storage.\" allow=\"true\">/<wopi desc=\"Allow\\/deny wopi storage.\" allow=\"true\">\n<host desc=\"Regex pattern of hostname to allow or deny.\" allow=\"true\">(?:.*\\\.)?'"$fqn"'\\\.'"$tdl"'<\/host>/" /etc/coolwsd/coolwsd.xml && \
