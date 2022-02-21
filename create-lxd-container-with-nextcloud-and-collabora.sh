@@ -33,7 +33,7 @@ echo "Waiting for container IP"
 sleep 8
 ContainerIP=$(lxc list "$container" -c 4 | awk '!/IPV4/{ if ( $2 != "" ) print $2}')
 done
-lxc config device set $container eth0 ipv4.address $ContainerIP
+lxc config device override $container eth0 ipv4.address $ContainerIP
 lxc file push vhost.conf $container/root/vhost.conf
 lxc file push collaboraonline.sources $container2/root/collaboraonline.sources
 lxc exec $container -- sh -c 'apt-get -qq install -y wget && \
@@ -66,7 +66,7 @@ echo "Waiting for collabora-container IP"
 sleep 2
 ContainerIP=$(lxc list "$container" -c 4 | awk '!/IPV4/{ if ( $2 != "" ) print $2}')
 done
-lxc config device set $container2 eth0 ipv4.address $ContainerIP2
+lxc config device override $container2 eth0 ipv4.address $ContainerIP2
 fi
 lxc exec $container2 -- sh -c 'apt-get -qq install -y wget && \
 wget https://collaboraoffice.com/downloads/gpg/collaboraonline-release-keyring.gpg -P /usr/share/keyrings && \
@@ -80,8 +80,16 @@ systemctl restart coolwsd'
 if [ "$revproxy" != "" ]
 then
 lxc file push vhost-reverse-proxy.conf $revproxy/root/vhost-reverse-proxy.conf
-lxc exec $revproxy -- sh -c 'apt install apache2 certbot python3-certbot-apache && \
-a2enmod proxy proxy_wstunnel ssl headers rewrite proxy_http && \
+install=""
+while [ "$install" != "Y" ] && [ "$install" != "N" ]
+do
+read 'Do you need apache and certbot to be installed on the Reverse-Proxy? [Y/N] ' install
+done
+if [ $install = "Y" ]
+then
+lxc exec $revproxy -- sh -c 'apt install -y apache2 certbot python3-certbot-apache'
+fi
+lxc exec $revproxy -- sh -c 'a2enmod proxy proxy_wstunnel ssl headers rewrite proxy_http && \
 mv /root/vhost-reverse-proxy.conf /etc/apache2/sites-available/'"$container"'-'"$container2"'-container.conf && \
 sed -i -r "s/replacewithdomain/'"$domain"'/g" /etc/apache2/sites-available/'"$container"'-'"$container2"'-container.conf && \
 sed -i -r "s/replacewithcontainer/'"$ContainerIP"'/g" /etc/apache2/sites-available/'"$container"'-'"$container2"'-container.conf && \
@@ -90,7 +98,15 @@ certbot certonly -d '"$domain"' --apache && \
 a2ensite '"$container"'-'"$container2"'-container.conf && \
 systemctl reload apache2'
 else
-apt install apache2 certbot python3-certbot-apache && \
+install=""
+while [ "$install" != "Y" ] && [ "$install" != "N" ]
+do
+read 'Do you need apache and certbot to be installed on the Host? [Y/N] ' install
+done
+if [ $install = "Y" ]
+then
+apt install -y apache2 certbot python3-certbot-apache
+fi
 a2enmod proxy proxy_wstunnel ssl headers rewrite proxy_http && \
 cp vhost-reverse-proxy.conf /etc/apache2/sites-available/"$container"-"$container2"-container.conf && \
 sed -i -r 's/replacewithdomain/'"$domain"'/g' /etc/apache2/sites-available/"$container"-"$container2"-container.conf && \
