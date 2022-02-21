@@ -78,12 +78,12 @@ systemctl restart coolwsd'
 if [ "$revproxy" != "" ]
 then
 lxc file push vhost-reverse-proxy.conf $revproxy/root/vhost-reverse-proxy.conf
-install=""
-while [ "$install" != "Y" ] && [ "$install" != "N" ]
+installapache=""
+while [ "$installapache" != "Y" ] && [ "$installapache" != "N" ]
 do
 read 'Do you need apache and certbot to be installed on the Reverse-Proxy? [Y/N] ' install
 done
-if [ $install = "Y" ]
+if [ $installapache = "Y" ]
 then
 lxc exec $revproxy -- sh -c 'apt install -y apache2 certbot python3-certbot-apache'
 fi
@@ -96,12 +96,12 @@ certbot certonly -d '"$domain"' --apache && \
 a2ensite '"$container"'-'"$container2"'-container.conf && \
 systemctl reload apache2'
 else
-install=""
-while [ "$install" != "Y" ] && [ "$install" != "N" ]
+installapache=""
+while [ "$installapache" != "Y" ] && [ "$installapache" != "N" ]
 do
-read 'Do you need apache and certbot to be installed on the Host? [Y/N] ' install
+read 'Do you need apache and certbot to be installed on the Host? [Y/N] ' installapache
 done
-if [ $install = "Y" ]
+if [ $installapache = "Y" ]
 then
 apt install -y apache2 certbot python3-certbot-apache
 fi
