@@ -20,9 +20,9 @@ lxc exec $revproxy -- sh -c 'a2dissite '"$container"'-'"$container2"'-container.
 systemctl reload apache2 && \
 rm /etc/apache2/sites-available/'"$container"'-'"$container2"'-container.conf'
 else
-a2dissite "$container"-"$container2"-container.conf
-systemctl reload apache2
-rm /etc/apache2/sites-available/000-nextcloud-container.conf
+sudo a2dissite "$container"-"$container2"-container.conf
+sudo systemctl reload apache2
+sudo rm /etc/apache2/sites-available/000-nextcloud-container.conf
 fi
 lxc stop $container && lxc delete $container
 if [ $diff = "Y" ]
