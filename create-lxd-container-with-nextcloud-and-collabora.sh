@@ -81,7 +81,7 @@ lxc file push vhost-reverse-proxy.conf $revproxy/root/vhost-reverse-proxy.conf
 installapache=""
 while [ "$installapache" != "Y" ] && [ "$installapache" != "N" ]
 do
-read 'Do you need apache and certbot to be installed on the Reverse-Proxy? [Y/N] ' install
+read 'Do you need apache and certbot to be installed on the Reverse-Proxy? [Y/N] ' installapache
 done
 if [ $installapache = "Y" ]
 then
